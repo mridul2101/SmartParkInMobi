@@ -1,0 +1,39 @@
+[
+    {
+        "parkID": "PARK_ID_01",
+        "parkName": "PVR Cinema",
+        "distance": "10km",
+        "time": "15 minutes",
+	"lon": "57.7973333",
+	"lat": "12.0502107",
+        "avail": "10",
+        "status": "1"
+    },
+    {
+        "parkID": "PARK_ID_02",
+        "parkName": "INOX",
+        "distance": "10km",
+        "time": "10 minutes",
+	"lon": "43.7973333",
+	"lat": "16.0502107",
+        "avail": "7",
+        "status": "1"
+    }
+]
+
+{parkid: obj[i].parkID, userid: user, latitude:lat, longitude: lon}
+
+[{"parkID": "PARK_ID_01","parkName": "PVR Cinema","distance": "10km","time": "15 minutes","long": "57.7973333","lat": "12.0502107","avail": "10","status": "1"},{"parkID": "PARK_ID_02","parkName": "INOX","distance": "10km","time": "10 minutes","long": "43.7973333","lat": "16.0502107","avail": "7","status": "1"}]
+
+{
+        "parkID": "ID_01",
+        "parkName": "PVR Cinema",
+        "latitude": "12.9667",
+        "longitude": "77.5667",
+	"max": 10,
+	"uri": "http://10.14.121.29:3000"
+}
+
+
+
+

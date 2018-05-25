@@ -1,0 +1,14 @@
+{
+  // Customer module configs
+  "Kinesis": {
+      "streamName": "<Stream Name",
+      "shards": <No of Shards>,
+      "region": "<Kinesis Region>"    
+    },
+     "Path": {
+      "scriptPath": "<script path to run topology>"      
+    },
+     "Host": {
+      "amqpHost": "< [OPTIONAL] AMQP HOST>"      
+    }
+}

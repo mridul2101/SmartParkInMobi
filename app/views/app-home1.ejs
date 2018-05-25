@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+	<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta http-equiv="content-language" content="en" />
+		<meta name="author" content="Johan Säll Larsson" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<meta name="keywords" content="Google maps, jQuery, plugin" />
+		<meta name="description" content="An example how to use jQuery and Google maps v3 with Google maps jQuery plugin" />
+		<link rel="schema.DC" href="http://purl.org/dc/elements/1.1/" />
+		<meta name="DC.title" content="xample with Google maps and jQuery - Google maps jQuery plugin" />
+		<meta name="DC.subject" content="Google maps;jQuery;plugin" />
+		<meta name="DC.description" content="An example how to use jQuery and Google maps v3 with Google maps jQuery plugin" />
+		<meta name="DC.creator" content="Johan Säll Larsson" />
+		<meta name="DC.language" content="en" />
+
+    <title>SmartPark</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../public/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="../public/bower_components/metisMenu/dist/metisMenu.min.css" rel="stylesheet">
+
+    <!-- Timeline CSS -->
+    <link href="../public/dist/css/timeline.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="../public/dist/css/sb-admin-2.css" rel="stylesheet">
+
+    <!-- Morris Charts CSS -->
+    <link href="../public/bower_components/morrisjs/morris.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="../public/bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+	<link type="text/css" rel="stylesheet" href="../public/css/960/min/960.css" />
+	<link type="text/css" rel="stylesheet" href="../public/css/960/min/960_16_col.css" />
+	<link type="text/css" rel="stylesheet" href="../public/css/normalize/min/normalize.css" />
+	<link type="text/css" rel="stylesheet" href="../public/css/prettify/min/prettify.css" />
+	<link type="text/css" rel="stylesheet" href="../public/css/style.css" />
+	<script type="text/javascript" src="../public/js/modernizr-2.0.6/modernizr.min.js"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+    <script src="../public/bower_components/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="../public/js/jquery.qrcode.min.js"></script>
+	
+    <div id="wrapper">	
+	<% include app-header %>
+        
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 id = 'app-title' class="page-header">Dashboard</h1>
+                </div>
+		<div id="qr" class="panel-body"> 			
+                </div>                  
+                <div id="app-dashboard" class="panel-body"> 
+			<div id="map_canvas" class="map rounded"></div>					                             
+                </div>  
+                    <!-- /.panel -->
+            </div>
+            <!-- /.row -->
+	   
+        </div>
+        <!-- /#page-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="../public/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+    <!-- Metis Menu Plugin JavaScript -->
+    <script src="../public/bower_components/metisMenu/dist/metisMenu.min.js"></script>
+
+     <!-- DataTables JavaScript -->
+    <script src="../public/bower_components/datatables/media/js/jquery.dataTables.min.js"></script>
+    <script src="../public/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.min.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="../public/dist/js/sb-admin-2.js"></script>
+    
+
+   <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script> 
+
+		<script type="text/javascript" src="../public/js/underscore-1.2.2/underscore.min.js"></script>
+		<script type="text/javascript" src="../public/js/backbone-0.5.3/backbone.min.js"></script>
+		<script type="text/javascript" src="../public/js/prettify/prettify.min.js"></script>
+		<script type="text/javascript" src="../public/js/demo.js"></script>
+		<script type="text/javascript" src="../public/js/jquery.ui.map.js"></script>
+		<script type="text/javascript">
+           	  $(function() { 
+			var lon = "78.4800";
+			var lat = "12.5667";
+			var uri = "http://10.14.121.31:3030/getparklots/13.173706/77.8826809";
+			$.get(uri, function(data) {
+				//alert(data);
+			    		
+			/*var data = '[{"parkID": "PARK_ID_01","parkName": "PVR Cinema","distance": "10km","time": "15 minutes","lat": "12.5667","lon": "77.9667","avail": "10","status": "1"},{"parkID": "PARK_ID_02","parkName": "INOX","distance": "10km","time": "10 minutes","lon": "78.4800","lat": "17.3700","avail": "7","status": "1"}]';*/
+			var obj = JSON.parse(data);
+			var len = obj.length;
+			
+			$('#map_canvas').gmap({'zoom': 2, 'disableDefaultUI':true}).bind('init', function(evt, map) { 			
+			   for(var i=0;i<len;i++){
+				var gmapobj = {};
+				var lat = obj[i].lat;
+				var lon = obj[i].lon;
+				var name = obj[i].parkName;
+				var parkid = obj[i].parkID;
+				name = 'Name: ' + name + '  vacancy: ' + obj[i].avail + '  distance: ' + obj[i].distance + '  time: ' + obj[i].time;
+				$('#map_canvas').gmap('addMarker', { 'position': new google.maps.LatLng(lat, lon), 'bounds': true }).click(function() {				
+					var uribook = "http://10.14.121.31:3030/bookparking";
+					var user = "app_" + Math.floor((Math.random() * 100) + 1);
+					$.post(uribook, {parkid: parkid, userid: user, latitude:lat, longitude: lon}, function(data) {
+			 			alert(data);
+						if(data != "Failed")
+							jQuery('#qr').qrcode(data);
+					});
+					$('#map_canvas').gmap('openInfoWindow', { 'content': name }, this);
+					
+				});			
+			   }
+			//$(this).gmap('set', 'MarkerClusterer', new MarkerClusterer(map, $(this).gmap('get', 'markers')));
+			});	
+		});
+	});
+        </script>
+</body>
+
+</html>

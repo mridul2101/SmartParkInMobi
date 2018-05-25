@@ -1,0 +1,5 @@
+{
+    "MongoDB": {
+      "uri": "mongodb://admin:siemens123@ds035702.mongolab.com:35702/noparkingdb"      
+    }
+}

@@ -1,0 +1,117 @@
+
+var crypto = require('crypto');
+var MongoDB = require('mongodb').Db;
+var Server = require('mongodb').Server;
+var uuid = require('uuid');
+var config = require('config');
+var request = require('request');
+
+var MongoClient = require('mongodb').MongoClient
+    , format = require('util').format;
+
+var dbURI = config.get('MongoDB.uri');
+//console.log(dbURI);
+
+var dbase;
+var parkstatus, parking;
+MongoClient.connect(dbURI, {auto_reconnect: true}, function(err, database) {
+  if(err) logger.error(err);
+  else{
+	  dbase = database;
+	  console.log('connected to database' );
+	  parkstatus = dbase.collection('parkstatus');
+	  parking = dbase.collection('park');
+  }
+});
+
+exports.updateParkStatus = function(parkid, max, avail, callback){
+	console.log(parkid);
+	console.log(max);
+	parkstatus.findOne({ parkID: parkid }, function(err, obj){
+		if(err)
+			callback(err, "Failed");
+		else if(!obj){
+			var newEntry = [];
+                        newEntry.push({ parkID:parkid, maxAvail: parseInt(max), available: parseInt(avail) });
+			parkstatus.insert(newEntry, function(err, obj){
+				if(err)
+					callback(err, "Failed");
+				else
+					callback(false, "Success");					
+			});
+		}
+		else {
+			var updateEntry = [];
+                        updateEntry.push({ available: parseInt(avail) });		
+			parkstatus.update({ parkID: parkid  }, {$set: updateEntry[0]}, function(err, obj){
+				if(err)  callback(err, "Failed");
+				else	callback(false, "Success");
+
+			});
+		}
+		
+	});
+}
+
+var findDistance = function(lat1, lon1, lat2, lon2, callback){
+	
+	var uri = 'https://maps.googleapis.com/maps/api/distancematrix/json?origins=' + lat1 + ',' + lon1 +'&destinations=' + lat2 + ',' + lon2 +'&language=en';
+	console.log(uri);
+	request(uri, function (error, response, body) {
+		if (!error && response.statusCode == 200) {
+			var body = JSON.parse(body);
+			
+			var distance = body.rows[0].elements[0].distance.text;
+			var time = body.rows[0].elements[0].duration.text;
+			callback(distance, time, false);
+  		}
+	});
+}
+
+
+/* Get SmartCampus List */
+exports.getParkStatus = function( lat,  lon, callback){
+	parkstatus.find({ available: {$gt: 0} }, {_id:0}).toArray(function(err, parklots){
+		console.log(parklots);
+		var parklist = [];
+		//for(var i = 0;i<parklots.length;i++){
+		parklots.forEach(function(lot){
+			var parkobj = {};
+			var avail = lot.available;
+			console.log("TEST: " + avail);
+			parking.findOne({parkID: lot.parkID}, function(err, obj){
+				if(err)
+					callback(err, "Failed");
+				else if(obj){
+					console.log(obj);
+					parkobj.parkID = obj.parkID;
+					parkobj.parkName = obj.parkName;
+					parkobj.avail = avail;
+					findDistance(lat, lon, obj.latitude, obj.longitude, function(distance, time, err){
+						if(err)
+							callback(err, "Failed");
+						else{
+							parkobj.distance = distance;
+							parkobj.time = time;
+							parklist.push(parkobj);
+							console.log(parklist);
+							if(parklist.length == parklots.length)
+								callback(false, parklist);
+							console.log("PP : "+parklist);
+						}
+							
+					});		
+				}
+			});
+		});
+		console.log("Hello");
+		console.log(parklist);
+		
+		//callback(false, parklist);
+        });
+	
+}
+
+
+
+
